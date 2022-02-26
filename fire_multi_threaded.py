@@ -140,8 +140,11 @@ def count_fire(detected_list):
 
     if len(detected_list) > 20:
         detected_list.pop(0)  # Remove the first element
+
         if detected_list.count(0) > 3:
-            playsound('warning.mp3')
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                executor.submit(playsound, 'warning.mp3')
+            # playsound('warning.mp3')
 
 
 if __name__ == "__main__":
@@ -183,7 +186,8 @@ if __name__ == "__main__":
                     x, y, w, h = cv2.boundingRect(detected)
                     height, width = frame.shape[:2]
 
-                    xmin, ymin = (x - int(w/2), y - int(h/2))
+                    # xmin, ymin = (x - int(w/2), y - int(h/2))
+                    xmin, ymin = (x, y)
                     xmax, ymax = (x + w), (y + h)
 
                     try:
@@ -209,8 +213,9 @@ if __name__ == "__main__":
                     except:
                         print(f"ROI: {ROI}")
 
-                    with concurrent.futures.ThreadPoolExecutor() as executor:
-                        executor.submit(count_fire, detected_list)
+                    # with concurrent.futures.ThreadPoolExecutor() as executor:
+                    #     executor.submit(count_fire, detected_list)
+                    count_fire(detected_list)
 
         # adding a delay for simulating time taken for processing a frame
         delay = 0.03  # delay value in seconds. so, delay=1 is equivalent to 1 second
@@ -227,7 +232,8 @@ if __name__ == "__main__":
     # printing time elapsed and fps
     elapsed = end-start
     fps = num_frames_processed/elapsed
-    print(f"FPS: {fps} , Elapsed Time: {elapsed} , Frames Processed: {num_frames_processed}")
+    print(
+        f"FPS: {fps} , Elapsed Time: {elapsed} , Frames Processed: {num_frames_processed}")
 
     # closing all windows
     cv2.destroyAllWindows()
